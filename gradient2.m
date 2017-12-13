@@ -64,6 +64,7 @@ for i =1:shape(2)
         yB = log(1+exp(x0(1:sizeH)'*im(:,i)+x0(end)));
     end
 end
+
 tot(nIter+1) = yA/nA + yB/nB;
 x= xnew;
 

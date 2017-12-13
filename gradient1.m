@@ -1,22 +1,23 @@
 %% Compute the gradient méthod with logistic loss and R bounded variable
-function x = gradient1(x,tol,nIter,R,data0,data1)
+function xOut = gradient1(x,nIter,R,data0,data1)
 
 
-L = 0.000001;
+L = 10;
 
 shape1 = size(data0);
 shape2 = size(data1);
 
+xOut= [];
 sizeH = shape1(1);
 nA = shape1(2);
 nB = shape2(2);
 
-delta = 10;
+
 n = 0;
 
 xnew = x;
 
-while n < nIter && tol < abs(delta)
+while n < nIter 
     x0 = xnew;
     gradH = zeros(sizeH,1);
     gradC = 0;
@@ -37,18 +38,16 @@ while n < nIter && tol < abs(delta)
     
 
     xnew(1:sizeH) = x0(1:sizeH)-(1/L)*(gradH);
-%     
-%     if norm(xnew(1:sizeH))> R
-%         xnew(1:sizeH) = xnew(1:sizeH)/norm(xnew(1:sizeH))*R;
-%     end
+
     xnew(end) = x0(end)-(1/L)*(gradC);
     
     if norm(xnew)> R
         xnew = xnew/norm(xnew)*R;
     end
+    
+    xOut = [xOut xnew];
 
     n = n+1
-    delta = 1;
 end
 
 x= xnew;
