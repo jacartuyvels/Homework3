@@ -1,8 +1,8 @@
 %% Compute the gradient méthod with logistic loss and R bounded variable
-function xOut = gradient1(x,nIter,R,data0,data1)
+function xOut = gradient1(x,nIter,L,R,data0,data1)
 
 
-L = 10;
+
 
 shape1 = size(data0);
 shape2 = size(data1);
