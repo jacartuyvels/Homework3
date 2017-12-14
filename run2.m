@@ -24,17 +24,18 @@ shape2 = size(image2);
 image2 = reshape(image2(:,:,:),[shape2(1)*shape2(2), shape2(3)]);
 
 
-data0 = data0(:,1:2000);
-data1 = data1(:,1:12000);
+data0 = data0(:,1:200);
+data1 = data1(:,1:1200);
 
-[h,c]=marginLin(data0,data1,10);
+lambda = 5;
+[h,c]=marginLin2(data0,data1,lambda);
 
-[data0 data1] = partition(image2,label2);
+[data0 data1] = partition(image2,label2,0);
 
-y1 = data0'*h +c
-y2 = data1'*h + c
-accuracy1 = 0
-accuracy2 = 0
+y1 = data0'*h +c;
+y2 = data1'*h + c;
+accuracy1 = 0;
+accuracy2 = 0;
 for i = 1:size(data0,2)
     accuracy1 = accuracy1 + max(0,y1(i))/y1(i);
 end
@@ -44,8 +45,6 @@ accuracy1 = accuracy1/(size(data0,2))
 end
 accuracy2 = accuracy2/(size(data1,2))
 
-
-pause;
 
 
     

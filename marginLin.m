@@ -10,8 +10,11 @@ nB = size(data1,2);
 n = size(data0,1);
 
 A = [-data0' -ones(nA,1) ones(nA,1);data1' ones(nB,2); zeros(1,n+2); eye(n) zeros(n,2)]';
+
 c = [zeros(nA+nB,1); 1; zeros(n,1)];
+
 b = [zeros(n+1,1); 1];
+
 K.l = nA+nB;
 K.q = n+1;
 

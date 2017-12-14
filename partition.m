@@ -12,6 +12,4 @@ for i = 1:shape(2)
    end
 end
 
-
-
 end

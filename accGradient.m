@@ -1,15 +1,24 @@
 %% Compute the accelerated gradient méthod on logistic loss function and lambda regularized variable
 function xOut = accGradient(x,nIter,L,lambda,data0,data1)
 
-shape1 = size(data0);
-shape2 = size(data1);
 
 xOut= [x];
-sizeH = shape1(1);
-nA = shape1(2);
-nB = shape2(2);
+sizeH = size(data0,1);
+nA = size(data0,2);
+nB = size(data1,2);
+L = 0;
 
+for i = 1:nA
+    h = data0(:,i);
+    L = L + 1/4*norm([h; 1]*[h' 1],inf)/nA;
+end
 
+for i = 1:nB
+    h = data1(:,i);
+    L = L + 1/4*norm([h ;1]*[h' 1],inf)/nB;
+end
+
+L = 10
 n = 0;
 
 xnew = x;
