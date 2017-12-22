@@ -7,7 +7,6 @@ training = data.training;
 test = data.test;
 
 
-
 label = training.labels;
 image = training.images;
 shape = size(image);
@@ -20,213 +19,89 @@ nB = size(data1,2);
 data0 = data0(:,1:200);
 data1 = data1(:,1:1200);
 
-%% 1.1 Subradient descent on hinge loss function with Lambda regularized objective
 
-% variable [h_i c]' for i=1, ... , 28^2
-
-nIter = 20;
-lambda = 0.01;
-x= zeros(shape(1)*shape(2)+1,1);
-xOut = zeros(shape(1)*shape(2)+1,nIter);
+nIter = 50;
 L = 10;
+lambda = 10^(-6);
+lambda2 = 0.01
+R = 8
 
-xOut = subgradient(x,nIter,L,lambda,data0,data1)
+x = zeros(size(data0,1)+1,1);
 
-nA = size(data0);
-nB = size(data1);
+%[xOut1 gradOut1] = gradient1(x,nIter,R,L,data0,data1);
+%[xOut2 gradOut2] = gradient2(x,nIter,lambda,L,data0,data1);
+%[xOut3 gradOut3] = accGradient(x,nIter,L,lambda,data0,data1);
+[xOut4 gradOut4] = subgradient(x,nIter,L,lambda2,data0,data1);
 
-y = zeros(nA(2),nIter);
-y2 = zeros(nB(2),nIter);
-accuracy1 = zeros(nIter,1);
-accuracy2 = zeros(nIter,1);
+%%
+nA = size(data0,2);
+nB = size(data1,2);
+objective = zeros(nIter,4);
 
-for j = 1:nIter
-    
-    for i = 1:nA(2)
-        y(i,j) = xOut(1:end-1,j)'*data0(:,i) + xOut(end,j);
-        
-        accuracy1(j) = accuracy1(j) + max(0,y(i,j))/y(i,j);
-        
+for j = 1:nIter    
+    for i = 1:nA
+        y1 = xOut1(1:end-1,j)'*data0(:,i) +xOut1(end,j);
+        objective(j,1) = objective(j,1) + log(1+exp(-y1))/nA;
     end
+
     
-    accuracy1(j) = accuracy1(j)/nA(2) ;
+    for i = 1:nB
+        y2 = xOut1(1:end-1,j)'*data1(:,i) + xOut1(end,j);
+        objective(j,1) = objective(j,1) + log(1+exp(y2))/nB;
+    end    
     
-    for i = 1:nB(2)
-        y2(i,j) = xOut(1:end-1,j)'*data1(:,i) + xOut(end,j) ; 
-        
-        accuracy2(j) = accuracy2(j) + min(0,y2(i,j))/y2(i,j);
-        
-    end
-    accuracy2(j) = accuracy2(j)/nB(2);
 end
- 
-figure
-plot(accuracy1)
-hold on 
-plot(accuracy2)
-title('Accuracy of subradient descent on hinge loss function with Lambda regularized objective')
-legend('Accuracy of 0','Accuracy if not 0')
-xlabel('Number of iteration')
-ylabel('Accuracy')
+m = 1:nIter;
+worst1 = L./(2*m)*norm(xOut1(:,1)-xOut1(:,end))^2;
 
-%% 1.2 Gradient descent on logistic loss function with R-bounded variable 
- 
-% variable [h_i c]' for i=1, ... , 28^2
-
-
-
-tol = 0;
-nIter = 100;
-R = 8;
-x= zeros(shape(1)*shape(2)+1,1);
-xOut = zeros(shape(1)*shape(2)+1,nIter);
-
-
-xOut = gradient1(x,nIter,R,data0,data1);
-
-
-
-nA = size(data0);
-nB = size(data1);
-
-y = zeros(nA(2),nIter);
-y2 = zeros(nB(2),nIter);
-accuracy1 = zeros(nIter,1);
-accuracy2 = zeros(nIter,2);
-
-for j = 1:nIter
-    
-    for i = 1:nA(2)
-        y(i,j) = xOut(1:end-1,j)'*data0(:,i) + xOut(end,j);
-        
-        accuracy1(j) = accuracy1(j) + max(0,y(i,j))/y(i,j);
-        
+for j = 1:nIter    
+    for i = 1:nA
+        y1 = xOut2(1:end-1,j)'*data0(:,i) +xOut2(end,j);
+        objective(j,2) = objective(j,2) + log(1+exp(-y1))/nA;
     end
+
     
-    accuracy1(j) = accuracy1(j)/nA(2) ;
-    
-    for i = 1:nB(2)
-        y2(i,j) = xOut(1:end-1,j)'*data1(:,i) + xOut(end,j) ; 
-        
-        accuracy2(j) = accuracy2(j) + min(0,y2(i,j))/y2(i,j);
-        
+    for i = 1:nB
+        y2 = xOut2(1:end-1,j)'*data1(:,i) + xOut2(end,j);
+        objective(j,2) = objective(j,2) + log(1+exp(y2))/nB;
     end
-    accuracy2(j) = accuracy2(j)/nB(2);
-end
-figure 
-hold off
-plot(accuracy1)
-hold on 
-plot(accuracy2)
-title('Accuracy of gradient descent on logistic loss function with R-bounded variable')
-legend('Accuracy of 0','Accuracy if not 0')
-xlabel('Number of iteration')
-ylabel('Accuracy')
-    
-    
-%% 1.3 Gradient descent on logistic loss function with Lambda regularized objective
-
-% variable [h_i c]' for i=1, ... , 28^2
-
-nIter = 20;
-lambda = 0.0000001;
-x= zeros(shape(1)*shape(2)+1,1);
-xOut = zeros(shape(1)*shape(2)+1,nIter);
-L = 10
-
-xOut = gradient2(x,nIter,L,lambda,data0,data1);
-
-
-
-nA = size(data0);
-nB = size(data1);
-
-y = zeros(nA(2),nIter);
-y2 = zeros(nB(2),nIter);
-accuracy1 = zeros(nIter,1);
-accuracy2 = zeros(nIter,1);
-
-for j = 1:nIter
-    
-    for i = 1:nA(2)
-        y(i,j) = xOut(1:end-1,j)'*data0(:,i) + xOut(end,j);
-        
-        accuracy1(j) = accuracy1(j) + max(0,y(i,j))/y(i,j);
-        
-    end
-    
-    accuracy1(j) = accuracy1(j)/nA(2) ;
-    
-    for i = 1:nB(2)
-        y2(i,j) = xOut(1:end-1,j)'*data1(:,i) + xOut(end,j) ; 
-        
-        accuracy2(j) = accuracy2(j) + min(0,y2(i,j))/y2(i,j);
-        
-    end
-    accuracy2(j) = accuracy2(j)/nB(2);
-end
- 
-
-figure
-hold off
-plot(accuracy1)
-hold on 
-plot(accuracy2)
-title('Accuracy of gradient descent on logistic loss function with Lambda regularized objective')
-legend('Accuracy of 0','Accuracy if not 0')
-xlabel('Number of iteration')
-ylabel('Accuracy')
-    
-
-%% 1.4 Accelerated Gradient descent on logistic loss function with Lambda regularized objective
-
-% variable [h_i c]' for i=1, ... , 28^2
-
-nIter = 20;
-lambda = 0.000001;
-x= zeros(shape(1)*shape(2)+1,1);
-xOut = zeros(shape(1)*shape(2)+1,nIter);
-L = 10
-
-xOut = accGradient(x,nIter,L,lambda,data0,data1);
-
-
-
-nA = size(data0);
-nB = size(data1);
-
-y = zeros(nA(2),nIter+1);
-y2 = zeros(nB(2),nIter+1);
-accuracy1 = zeros(nIter+1,1);
-accuracy2 = zeros(nIter+1,2);
-
-for j = 1:nIter+1
-    
-    for i = 1:nA(2)
-        y(i,j) = xOut(1:end-1,j)'*data0(:,i) + xOut(end,j);
-        
-        accuracy1(j) = accuracy1(j) + max(0,y(i,j))/y(i,j);
-        
-    end
-    
-    accuracy1(j) = accuracy1(j)/nA(2) ;
-    
-    for i = 1:nB(2)
-        y2(i,j) = xOut(1:end-1,j)'*data1(:,i) + xOut(end,j) ; 
-        
-        accuracy2(j) = accuracy2(j) + min(0,y2(i,j))/y2(i,j);
-        
-    end
-    accuracy2(j) = accuracy2(j)/nB(2);
+    objective(j,2) = objective(j,2) +   lambda/2 *norm(xOut2(1:end-1,j));
 end
 
-figure
-hold off
-plot(accuracy1)
-hold on 
-plot(accuracy2)
-title('Accuracy of accelerated gradient descent on logistic loss function with Lambda regularized objective')
-legend('Accuracy of 0','Accuracy if not 0')
-xlabel('Number of iteration')
-ylabel('Accuracy')
+worst2 = L./(2*m)*norm(xOut2(:,1)-xOut2(:,end))^2;
+
+
+
+for j = 1:nIter    
+    for i = 1:nA
+        y1 = xOut3(1:end-1,j)'*data0(:,i) +xOut3(end,j);
+        objective(j,3) = objective(j,3) + log(1+exp(-y1))/nA;
+    end
+
+    
+    for i = 1:nB
+        y2 = xOut3(1:end-1,j)'*data1(:,i) + xOut3(end,j);
+        objective(j,3) = objective(j,3) + log(1+exp(y2))/nB;
+    end
+    objective(j,3) = objective(j,3) +   lambda/2 *norm(xOut3(1:end-1,j));
+end
+
+worst3 = 2*L./(m).^2*norm(xOut2(:,1)-xOut2(:,end))^2;
+
+%%
+
+
+subplot(2,2,2)
+semilogy(m,objective(:,1),m,worst1)
+title('Gradient with R-bounded constraint')
+legend('Our method','Worst case')
+subplot(2,2,3)
+semilogy(m,objective(:,2),m,worst2)
+title('Gradient with lambda-regularized variable')
+legend('Our method','Worst case')
+subplot(2,2,4)
+semilogy(m,objective(:,3),m,worst3)
+title('Accelerated gradient with lambda-regularized variable')
+legend('Our method','Worst case')
+
 

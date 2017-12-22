@@ -1,23 +1,24 @@
 %% Compute the gradient méthod with logistic loss and lambda regularized variable
-function xOut = gradient1(x,nIter,L,lambda,data0,data1)
+function [xOut gradOut] = gradient2(x,nIter,lambda,L,data0,data1)
 
 
 
 xOut= [];
+gradOut = [];
 sizeH = size(data0,1);
 nA = size(data0,2);
 nB = size(data1,2);
-L = 0;
-
-for i = 1:nA
-    h = data0(:,i);
-    L = L + 1/4*norm([h; 1]*[h' 1],inf)/nA;
-end
-
-for i = 1:nB
-    h = data1(:,i);
-    L = L + 1/4*norm([h ;1]*[h' 1],inf)/nB;
-end
+% L = 0;
+% 
+% for i = 1:nA
+%     h = data0(:,i);
+%     L = L + 1/4*norm([h; 1]*[h' 1],inf)/nA;
+% end
+% 
+% for i = 1:nB
+%     h = data1(:,i);
+%     L = L + 1/4*norm([h ;1]*[h' 1],inf)/nB;
+% end
 
 n = 0;
 
@@ -53,12 +54,11 @@ while n < nIter
     xnew(end) = x0(end)-(1/L)*(gradC);
     
     
-    
+    gradOut = [gradOut norm([gradH;gradC])];
     xOut = [xOut xnew];
 
     n = n+1
 end
-
 x= xnew;
 
 end

@@ -5,7 +5,7 @@ data = load('Homework-3-data.mat');
 training = data.training;
 test = data.test;
 
-nIter = 10
+nIter =  500
 
 
 label = training.labels;
@@ -31,39 +31,39 @@ data1 = data1(:,1:4800);
 nA = size(data0,2);
 nB = size(data1,2);
 
-L = [5 10 30 60];
+L = [10 30];
 
 x= zeros(shape(1)*shape(2)+1,1);
 xOut = zeros(shape(1)*shape(2)+1,nIter);
 
-lambda = 10;
-objective = zeros(nIter,length(L));
-normh = zeros(nIter,length(L));
-for k =1:length(L)
-   
-    xOut = accGradient(x,nIter,lambda,L(k),data0,data1);
+lambda = [10^(-2) 10^(-4) 10^(-6) 10^(-8)];
 
-    y = zeros(nA,nIter);
-    y2 = zeros(nB,nIter);
+gradOut = zeros(length(L),length(lambda),nIter)
 
-    for j = 1:nIter
-        y(:,j) = xOut(1:end-1,j)'*data0(:,:) +xOut(end,j);
-        y2(:,j) = xOut(1:end-1,j)'*data1(:,:) +xOut(end,j);
-        
-        normh(j,k) = norm(xOut(1:end-1,j));
-
-        objective(j,k) = objective(j,k) + sum(log(1+exp(-y(:,j))))/nA + sum(log(1+exp(y2(:,j))))/nB + lambda/2*normh(j,k);
-    end
+for i = 1:length(L)
+   for j= 1:length(lambda)
+        [xOut gradOut(i,j,:)] = gradient2(x,nIter,lambda(j),L(i),data0,data1);
+   end
 end
 
 %%
-figure
+x = 1:nIter
+grad1 = gradOut(1,:,:);
+grad1 = reshape(grad1,[length(lambda) nIter]);
+grad2 = gradOut(2,:,:)
+grad2 = reshape(grad2,[length(lambda) nIter]);
 
-x= linspace(1,nIter,nIter);
-plot(x,objective(:,1),x,objective(:,2),x,objective(:,3),x,objective(:,4))
-legend('L=5','L=10','L=30','L=50')
-xlim([1 nIter])
-xlabel('Number of iterations')
+subplot(1,2,1)
+semilogy(x,grad1(1,:),x,grad1(2,:),x,grad1(3,:),x,grad1(4,:))
+title('L=10')
+legend('lambda = 10^{-2}','lambda = 10^{-4}','lambda = 10^{-6}','lambda = 10^{-8}')
+
+subplot(1,2,2)
+semilogy(x,grad2(1,:),x,grad2(2,:),x,grad2(3,:),x,grad2(4,:))
+title('L=30')
+legend('lambda = 10^{-2}','lambda = 10^{-4}','lambda = 10^{-6}','lambda = 10^{-8}')
+
+
 
 
 
